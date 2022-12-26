@@ -5,10 +5,13 @@ int main(void) {
 
 	if (a == 1) {
 		printf("apple");
-	}else if
+	}
+	else if (a == 2) {
 		printf("banana");
-	else 
+	}
+	else{
 		printf("mango");
+	}
 
 	return 0;
 }
