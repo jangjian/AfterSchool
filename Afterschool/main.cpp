@@ -44,7 +44,14 @@ int main(void)
         if (Keyboard::isKeyPressed(Keyboard::Down)) {
             player.move(0, player_speed);
         }
+
+        if (player.getGlobalBounds().intersects(enemy.getGlobalBounds()))
+        {
+            printf("enemy과 충돌\n");
+        }
         window.clear(Color::Black);
+
+        //draw는 나중에 호출할수록 우선 순위가 높아짐
         window.draw(enemy);
         window.draw(player);
         window.display();
