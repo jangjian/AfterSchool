@@ -29,6 +29,13 @@ int main(void)
     text.setFillColor(Color(255, 255, 255));
     text.setPosition(0, 0);
     char info[40];
+
+    //배경
+    Texture bg_texture;
+    bg_texture.loadFromFile("./resources/images/background.png");
+    Sprite bg_sprite;
+    bg_sprite.setTexture(bg_texture);
+    bg_sprite.setPosition(0, 0);
     
     // 플레이어
     RectangleShape player;
@@ -128,6 +135,7 @@ int main(void)
         text.setString(info);
 
         window.clear(Color::Black);
+        window.draw(bg_sprite);
 
         //draw는 나중에 호출할수록 우선 순위가 높아짐
         for (int i = 0; i < 5; i++) {
@@ -136,6 +144,7 @@ int main(void)
         }
         window.draw(player);
         window.draw(text);
+       
 
         window.display();
     }
