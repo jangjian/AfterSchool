@@ -7,11 +7,23 @@ using namespace sf;
 
 int main(void)
 {
+
+  
     //윈도우창 생성
     RenderWindow window(VideoMode(640, 480), "AfterSchool");
     window.setFramerateLimit(60);
 
     srand(time(0));
+
+    Font font;
+    font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
+    
+    Text text;
+    text.setFont(font);
+    text.setCharacterSize(50);  //폰트 크기
+    text.setFillColor(Color(255, 255, 255));
+    text.setPosition(0, 0);
+    text.setString("score");
 
     RectangleShape player;
     player.setSize(Vector2f(40, 40));
@@ -99,9 +111,10 @@ int main(void)
         for (int i = 0; i < 5; i++) {
             if (enemy_life[i] > 0)
                 window.draw(enemy[i]);
-
         }
         window.draw(player);
+        window.draw(text);
+
         window.display();
     }
 
