@@ -129,6 +129,9 @@
   <ItemGroup>
     <ClCompile Include="문자열 덧붙이기.c" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="구조체.c" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
