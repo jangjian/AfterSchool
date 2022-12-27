@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <SFML/Graphics.hpp>
 #include <time.h>
 
@@ -8,7 +9,6 @@ using namespace sf;
 int main(void)
 {
 
-  
     //윈도우창 생성
     RenderWindow window(VideoMode(640, 480), "AfterSchool");
     window.setFramerateLimit(60);
@@ -23,7 +23,8 @@ int main(void)
     text.setCharacterSize(50);  //폰트 크기
     text.setFillColor(Color(255, 255, 255));
     text.setPosition(0, 0);
-    text.setString("score");
+    char info[40];
+    
 
     RectangleShape player;
     player.setSize(Vector2f(40, 40));
@@ -31,6 +32,8 @@ int main(void)
     player.setFillColor(Color::Red);
     int player_speed = 5;
     int player_score = 0;
+    
+    
 
     RectangleShape enemy[5];
     int enemy_life[5];
@@ -103,7 +106,8 @@ int main(void)
             }
         }
 
-        printf("score : %d\n", player_score);
+        sprintf(info, "score : %d\n", player_score);
+        text.setString(info);
 
         window.clear(Color::Black);
 
