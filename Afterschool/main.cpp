@@ -46,19 +46,22 @@ int main(void)
     int player_score = 0;
     
     //적
-    RectangleShape enemy[5];
-    int enemy_life[5];
+    const int ENEMY_NUM = 10;
+    RectangleShape enemy[ENEMY_NUM];
+    int enemy_life[ENEMY_NUM];
+    int enemy_speed[ENEMY_NUM];
     int enemy_score = 100;  //적을 잡을 때 얻는 점수
     SoundBuffer enemy_explosion_buffer;
     enemy_explosion_buffer.loadFromFile("./resources/sounds/rumble.flac");
     Sound enemy_explosion_sound;
     enemy_explosion_sound.setBuffer(enemy_explosion_buffer);
     //enemy 초기화
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < ENEMY_NUM; i++) {
         enemy[i].setSize(Vector2f(70, 70));
         enemy[i].setFillColor(Color::Yellow);
         enemy_life[i] = 1;
         enemy[i].setPosition(rand()%300+300, rand()%380);
+        enemy_speed[i] = -(rand() % 10 + 1);
     }
 
     //윈도우가 열려있을 때까지 반복
@@ -78,11 +81,12 @@ int main(void)
                 //스페이스 키 누르면 모든 적 출현
                 if (event.key.code == Keyboard::Space) 
                 {
-                    for (int i = 0; i < 5; i++) {
+                    for (int i = 0; i < ENEMY_NUM; i++) {
                         enemy[i].setSize(Vector2f(70, 70));
                         enemy[i].setFillColor(Color::Yellow);
                         enemy_life[i] = 1;
                         enemy[i].setPosition(rand() % 300 + 300, rand() % 380);
+                        enemy_speed[i] = -(rand() % 10 + 1);
                     }
                 }
                 break;
@@ -109,7 +113,7 @@ int main(void)
 
 
         //enemy와의 충돌
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < ENEMY_NUM; i++)
         {
             if (enemy_life[i] > 0)
             {
@@ -125,7 +129,7 @@ int main(void)
                         enemy_explosion_sound.play();
                     }
                 }
-
+                enemy[i].move(enemy_speed[i], 0);
             }
    
         }
@@ -138,7 +142,7 @@ int main(void)
         window.draw(bg_sprite);
 
         //draw는 나중에 호출할수록 우선 순위가 높아짐
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < ENEMY_NUM; i++) {
             if (enemy_life[i] > 0)
                 window.draw(enemy[i]);
         }
