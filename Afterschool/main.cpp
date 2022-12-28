@@ -31,7 +31,6 @@ const int GO_WIDTH = 320, GO_HEIGHT = 240;  //게임오버 그림의 크기
 
 int main(void)
 {
-
     //윈도우창 생성
     RenderWindow window(VideoMode(W_WIDTH, W_HEIGHT), "AfterSchool");
     window.setFramerateLimit(60);
@@ -41,6 +40,14 @@ int main(void)
     long start_time = clock(); //게임 시작 시간
     long spent_time; //게임 진행 시간
     int is_gameover = 0;
+
+    //BGM
+    SoundBuffer BGM_buffer;
+    BGM_buffer.loadFromFile("./resources/sounds/bgm.flac");
+    Sound BGM_sound;
+    BGM_sound.setBuffer(BGM_buffer);
+    BGM_sound.setLoop(1);       //BGM 무한반복
+    BGM_sound.play();
 
     //text
     Font font;
