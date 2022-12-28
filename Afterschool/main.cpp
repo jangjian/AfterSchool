@@ -29,6 +29,12 @@ struct Bullet
     int speed;
     int is_fired; //발사 여부
 };
+struct Textures {
+    Texture bg;         // 배경 이미지
+    Texture enemy;     // 적 이미지
+    Texture gameover;   // 게임오버 이미지
+    Texture player;     // 플레이어 이미지
+};
 
 //obj1과 obj2의 충돌 여부. 충돌하면 1을 반환, 안하면 0을 반환
 int is_collide(RectangleShape obj1, RectangleShape obj2)
@@ -39,11 +45,18 @@ int is_collide(RectangleShape obj1, RectangleShape obj2)
 //전역변수 
 const int ENEMY_NUM = 10;                   //enemy의 최대 개수
 const int W_WIDTH = 1200, W_HEIGHT = 600;    //창의 크기
-const int GO_WIDTH = 320, GO_HEIGHT = 240;  //게임오버 그림의 크기
+const int GO_WIDTH = 640, GO_HEIGHT = 450;  //게임오버 그림의 크기
 
 
 int main(void)
 {
+
+    struct Textures t;
+    t.bg.loadFromFile("./resources/images/background.png");
+    t.enemy.loadFromFile("./resources/images/enemy.png");
+    t.gameover.loadFromFile("./resources/images/gameover.png");
+    t.player.loadFromFile("./resources/images/player.png");
+
     //윈도우창 생성
     RenderWindow window(VideoMode(W_WIDTH, W_HEIGHT), "AfterSchool");
     window.setFramerateLimit(60);
@@ -74,26 +87,23 @@ int main(void)
     char info[40];
 
     //배경
-    Texture bg_texture;
-    bg_texture.loadFromFile("./resources/images/background.jpg");
     Sprite bg_sprite;
-    bg_sprite.setTexture(bg_texture);
+    bg_sprite.setTexture(t.bg);
     bg_sprite.setPosition(0, 0);
 
     //게임오버
-    Texture gameover_texture;
-    gameover_texture.loadFromFile("./resources/images/gameover.png");
+    
     Sprite gameover_sprite;
-    gameover_sprite.setTexture(gameover_texture);
+    gameover_sprite.setTexture(t.gameover);
     gameover_sprite.setPosition((W_WIDTH-GO_WIDTH)/2, (W_HEIGHT-GO_HEIGHT)/2);
     
     // 플레이어
     struct Player player;
-    player.sprite.setSize(Vector2f(40, 40));
+    player.sprite.setTexture(&t.player);
     player.sprite.setPosition(100, 100);
+    player.sprite.setSize(Vector2f(200,141));
     player.x = player.sprite.getPosition().x;
     player.y = player.sprite.getPosition().y;
-    player.sprite.setFillColor(Color::Red);
     player.speed = 5;
     player.score = 0;
     player.life = 3;
@@ -101,7 +111,7 @@ int main(void)
     // 총알
     struct Bullet bullet;
     bullet.sprite.setSize(Vector2f(10, 10));
-    bullet.sprite.setPosition(player.x+50, player.y+15);        //임시 테스트
+    bullet.sprite.setPosition(player.x+50, player.y);        //임시 테스트
     bullet.speed = 20;
     bullet.is_fired = 0;
     
@@ -112,12 +122,12 @@ int main(void)
     for (int i = 0; i < ENEMY_NUM; i++)
     {
         // TODO : 굉장히 비효율적인 코드이므로 나중에 refactoring
-        enemy[i].explosion_buffer.loadFromFile("./resources/sounds/pop1.ogg");
+        enemy[i].explosion_buffer.loadFromFile("./resources/sounds/pop1.flac");
         enemy[i].explosion_sound.setBuffer(enemy[i].explosion_buffer);
         enemy[i].score = 100;
         enemy[i].respawn_time = 8;
+        enemy[i].sprite.setTexture(&t.enemy);
         enemy[i].sprite.setSize(Vector2f(70, 70));
-        enemy[i].sprite.setFillColor(Color::Yellow);
         enemy[i].sprite.setPosition(rand() % 300 + W_WIDTH * 0.9, rand() % 380);
         enemy[i].life = 1;
         enemy[i].speed = -(rand() % 10 + 1);
@@ -174,7 +184,7 @@ int main(void)
         {
             if (!bullet.is_fired)
             {
-                bullet.sprite.setPosition(player.x + 50, player.y + 15);
+                bullet.sprite.setPosition(player.x + 50, player.y);
                 bullet.is_fired = 1;
             }
         }
@@ -185,8 +195,8 @@ int main(void)
            // 10초마다 enemy가 젠
             if (spent_time % (1000 * enemy[i].respawn_time) < 1000 / 60 + 1)
             {
+                enemy[i].sprite.setTexture(&t.enemy);
                 enemy[i].sprite.setSize(Vector2f(70, 70));
-                enemy[i].sprite.setFillColor(Color::Yellow);
                 enemy[i].sprite.setPosition(rand() % 300 + W_WIDTH * 0.9, rand() % 380);
                 enemy[i].life = 1;
                 // 10초마다 enemy의 속도+1
@@ -246,7 +256,7 @@ int main(void)
         }
 
        
-        sprintf(info, "life : %d | score : %d | time : %d"
+        sprintf(info, "Life : %d | Score : %d | Time : %d"
             ,player.life, player.score, spent_time/1000);
         text.setString(info);
 
