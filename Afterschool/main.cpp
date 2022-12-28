@@ -30,6 +30,12 @@ struct Bullet
     int is_fired; //발사 여부
 };
 
+//obj1과 obj2의 충돌 여부. 충돌하면 1을 반환, 안하면 0을 반환
+int is_collide(RectangleShape obj1, RectangleShape obj2)
+{
+    return obj1.getGlobalBounds().intersects(obj2.getGlobalBounds());
+}
+
 //전역변수 
 const int ENEMY_NUM = 10;                   //enemy의 최대 개수
 const int W_WIDTH = 1200, W_HEIGHT = 600;    //창의 크기
@@ -191,10 +197,9 @@ int main(void)
             {
                 //TODO : 총알이 관통하는 버그 수정행
                 //enemy와의 충돌
-                if (player.sprite.getGlobalBounds().intersects(enemy[i].sprite.getGlobalBounds())
-                    || (bullet.sprite.getGlobalBounds().intersects(enemy[i].sprite.getGlobalBounds())))
+                if (is_collide(player.sprite, enemy[i].sprite)
+                    || is_collide(bullet.sprite, enemy[i].sprite))
                 {
-                    printf("enemy[%d]과 충돌\n", i);
                     enemy[i].life -= 1;
                     player.score += enemy[i].score;
 

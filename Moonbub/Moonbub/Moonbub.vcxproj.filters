@@ -23,5 +23,8 @@
     <None Include="구조체.c">
       <Filter>소스 파일</Filter>
     </None>
+    <None Include="함수.c">
+      <Filter>소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>
