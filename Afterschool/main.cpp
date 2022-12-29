@@ -101,7 +101,7 @@ int main(void)
     struct Player player;
     player.sprite.setTexture(&t.player);
     player.sprite.setPosition(100, 100);
-    player.sprite.setSize(Vector2f(200,141));
+    player.sprite.setSize(Vector2f(170,181));
     player.x = player.sprite.getPosition().x;
     player.y = player.sprite.getPosition().y;
     player.speed = 5;
@@ -127,7 +127,7 @@ int main(void)
         enemy[i].score = 100;
         enemy[i].respawn_time = 8;
         enemy[i].sprite.setTexture(&t.enemy);
-        enemy[i].sprite.setSize(Vector2f(70, 70));
+        enemy[i].sprite.setSize(Vector2f(90, 90));
         enemy[i].sprite.setPosition(rand() % 300 + W_WIDTH * 0.9, rand() % 380);
         enemy[i].life = 1;
         enemy[i].speed = -(rand() % 10 + 1);
@@ -136,6 +136,10 @@ int main(void)
     //윈도우가 열려있을 때까지 반복
     while (window.isOpen())
     {
+        spent_time = clock() - start_time;
+        player.x = player.sprite.getPosition().x;
+        player.y = player.sprite.getPosition().y;
+
         Event event;
         while (window.pollEvent(event)) {
             //종료(X) 버튼을 누르면 Event::Closed
@@ -146,7 +150,7 @@ int main(void)
                 break;
             //키보드를 눌렀을 때(누른 순간만을 감지)
             case Event::KeyPressed:
-            {
+                {
                 ////스페이스 키 누르면 총 발사
                 //if (event.key.code == Keyboard::Space) 
                 //{
@@ -156,15 +160,17 @@ int main(void)
                 //    }
                 //}
                 break;
-            }
-
+                }
             }
         }
 
-        spent_time = clock() - start_time;
-        player.x = player.sprite.getPosition().x;
-        player.y = player.sprite.getPosition().y;
 
+        /*game 상태 update*/
+        if (player.life <= 0) {
+            is_gameover = 1;
+        }
+
+        /*Player update*/
         //방향키 start
         if (Keyboard::isKeyPressed(Keyboard::Left)) {
             player.sprite.move(-player.speed, 0);
@@ -179,7 +185,22 @@ int main(void)
             player.sprite.move(0, player.speed);
         }//방향키 end
 
-        //총알 발사
+        //Player 이동 범위 제한
+        //TODO : 오른쪽 아래쪽 제한을 의도대로 고치기
+        if (player.x < 0) 
+            player.sprite.setPosition(0, player.y);
+        else if(player.x > W_WIDTH) 
+            player.sprite.setPosition(W_WIDTH, player.y);
+
+        if (player.y < 0) 
+            player.sprite.setPosition(player.x, 0);
+        else if (player.y > W_HEIGHT)
+            player.sprite.setPosition(player.y, W_HEIGHT);
+        printf("(%f, %f)\n", player.x, player.y);
+       
+
+        /*Bullet update*/
+       //총알 발사
         if (Keyboard::isKeyPressed(Keyboard::Space))
         {
             if (!bullet.is_fired)
@@ -189,7 +210,15 @@ int main(void)
             }
         }
 
+        if (bullet.is_fired)
+        {
+            bullet.sprite.move(bullet.speed, 0);
+            if (bullet.sprite.getPosition().x > W_WIDTH)
+                bullet.is_fired = 0;
+        }
 
+
+        /*Enemy update*/
         for (int i = 0; i < ENEMY_NUM; i++)
         {
            // 10초마다 enemy가 젠
@@ -241,18 +270,6 @@ int main(void)
                 enemy[i].sprite.move(enemy[i].speed, 0);
             }
    
-        }
-
-        //TODO : 총알이 평생 한 번만 발사되는 버그를 수정
-        if (bullet.is_fired)
-        {
-            bullet.sprite.move(bullet.speed, 0);
-            if (bullet.sprite.getPosition().x > W_WIDTH)
-                bullet.is_fired = 0;
-        }
-
-        if (player.life <= 0) {
-            is_gameover = 1;
         }
 
        

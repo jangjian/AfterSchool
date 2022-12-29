@@ -2,7 +2,7 @@
 #방과후 수업
 
 리소스 출처
-BGM : Alexandr Zhelanov, https://soundcloud.com/alexandr-zhelanov
+BGM : http://www.matthewpablo.com/contact
 
 sound effects :rumbleexplosion
 https://opengameart.org/content/rumbleexplosion
