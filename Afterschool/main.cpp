@@ -44,6 +44,7 @@ struct Textures {
     Texture enemy;     // 적 이미지
     Texture gameover;   // 게임오버 이미지
     Texture player;     // 플레이어 이미지
+    Texture bullet;
 };
 
 //obj1과 obj2의 충돌 여부. 충돌하면 1을 반환, 안하면 0을 반환
@@ -68,6 +69,8 @@ int main(void)
     t.enemy.loadFromFile("./resources/images/enemy.png");
     t.gameover.loadFromFile("./resources/images/gameover.png");
     t.player.loadFromFile("./resources/images/player.png");
+    t.bullet.loadFromFile("./resources/images/bullet.png");
+
 
     //윈도우창 생성
     RenderWindow window(VideoMode(W_WIDTH, W_HEIGHT), "AfterSchool");
@@ -122,18 +125,22 @@ int main(void)
     player.life = 3;
 
     // 총알
+    struct Bullet bullet[BULLET_NUM];
+
+    Sprite bullet_sprite;
+    
+
     int bullet_speed = 20;
     int bullet_idx = 0;
     int bullet_delay = 500;     // 딜레이 0.5초
 
-    struct Bullet bullet[BULLET_NUM] ;
 
     for (int i = 0; i < BULLET_NUM; i++) {
-        bullet[i].sprite.setSize(Vector2f(10, 10));
-        bullet[i].sprite.setPosition(player.x + 50, player.y + 15);        //임시 테스트
+        bullet[i].sprite.setSize(Vector2f(30, 30));
+        bullet[i].sprite.setTexture(&t.bullet);
+        bullet[i].sprite.setPosition(player.x + 130, player.y + 89);        //임시 테스트
         bullet[i].is_fired = 0;
     }
-    
     
     // 적
     struct Enemy enemy[ENEMY_NUM];
@@ -223,13 +230,15 @@ int main(void)
         printf("bullet_idx %d\n", bullet_idx);
         if (Keyboard::isKeyPressed(Keyboard::Space))
         {
+            // 장전시간 체크 
             if (spent_time - fired_time > bullet_delay) {
                 //총알이 발사되어 있지 않다면
                 if (!bullet[bullet_idx].is_fired)
                 {
-                    bullet[bullet_idx].sprite.setPosition(player.x + 50, player.y);
+                    bullet[bullet_idx].sprite.setPosition(player.x + 130, player.y +89);
                     bullet[bullet_idx].is_fired = 1;
                     bullet_idx++;   //다음 총알이 발사할 수 있도록
+                    bullet_idx = bullet_idx % BULLET_NUM;
                     fired_time = spent_time;        //총알 장전
                 }
             }
