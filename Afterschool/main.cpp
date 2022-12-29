@@ -75,8 +75,9 @@ int main(void)
 
     srand(time(0));
 
-    long start_time = clock(); //게임 시작 시간
-    long spent_time; //게임 진행 시간
+    long start_time = clock();  // 게임 시작 시간
+    long spent_time;            // 게임 진행 시간
+    long fired_time = 0;            // 최근에 발사한 시간
     int is_gameover = 0;
 
     //BGM
@@ -123,6 +124,7 @@ int main(void)
     // 총알
     int bullet_speed = 20;
     int bullet_idx = 0;
+    int bullet_delay = 500;     // 딜레이 0.5초
 
     struct Bullet bullet[BULLET_NUM] ;
 
@@ -221,11 +223,15 @@ int main(void)
         printf("bullet_idx %d\n", bullet_idx);
         if (Keyboard::isKeyPressed(Keyboard::Space))
         {
-            if (!bullet[bullet_idx].is_fired)
-            {
-                bullet[bullet_idx].sprite.setPosition(player.x + 50, player.y);
-                bullet[bullet_idx].is_fired = 1;
-                bullet_idx++;   //다음 총알이 발사할 수 있도록
+            if (spent_time - fired_time > bullet_delay) {
+                //총알이 발사되어 있지 않다면
+                if (!bullet[bullet_idx].is_fired)
+                {
+                    bullet[bullet_idx].sprite.setPosition(player.x + 50, player.y);
+                    bullet[bullet_idx].is_fired = 1;
+                    bullet_idx++;   //다음 총알이 발사할 수 있도록
+                    fired_time = spent_time;        //총알 장전
+                }
             }
         }
         for (int i = 0; i < BULLET_NUM; i++) {
