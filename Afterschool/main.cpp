@@ -30,21 +30,32 @@ struct Enemy {
     int speed;
     int score;
     int life;
-    SoundBuffer explosion_buffer;
-    Sound explosion_sound;
-    int respawn_time;
 };
 struct Bullet
 {
     RectangleShape sprite;
     int is_fired; //발사 여부
 };
+
+struct Item {
+    RectangleShape sprite;
+    int delay;
+    int is_presentd;    //아이템이 떴는지?
+};
 struct Textures {
     Texture bg;         // 배경 이미지
-    Texture enemy;     // 적 이미지
+    Texture enemy;      // 적 이미지
     Texture gameover;   // 게임오버 이미지
+    Texture item_delay; // 공속 아이템 이미지
+    Texture item_speed; // 이속 아이템 이미지
     Texture player;     // 플레이어 이미지
-    Texture bullet;
+    Texture bullet;     // 총알 이미지
+   
+};
+struct SBuffer {
+    SoundBuffer BGM;
+    SoundBuffer pop1;
+    SoundBuffer pop2;
 };
 
 //obj1과 obj2의 충돌 여부. 충돌하면 1을 반환, 안하면 0을 반환
@@ -60,17 +71,21 @@ const int W_WIDTH = 1200, W_HEIGHT = 600;   //창의 크기
 const int GO_WIDTH = 640, GO_HEIGHT = 450;  //게임오버 그림의 크기
 
 
-
 int main(void)
 {
-
     struct Textures t;
     t.bg.loadFromFile("./resources/images/background.png");
     t.enemy.loadFromFile("./resources/images/enemy.png");
     t.gameover.loadFromFile("./resources/images/gameover.png");
+    t.item_delay.loadFromFile("./resources/images/item_delay.png");
+    t.item_speed.loadFromFile("./resources/images/item_speed.png");
     t.player.loadFromFile("./resources/images/player.png");
     t.bullet.loadFromFile("./resources/images/bullet.png");
 
+    struct SBuffer sb;
+    sb.BGM.loadFromFile("./resources/sounds/bgm.ogg");
+    sb.pop1.loadFromFile("./resources/sounds/pop1.wav");
+    sb.pop2.loadFromFile("./resources/sounds/pop2.ogg");
 
     //윈도우창 생성
     RenderWindow window(VideoMode(W_WIDTH, W_HEIGHT), "AfterSchool");
@@ -84,10 +99,9 @@ int main(void)
     int is_gameover = 0;
 
     //BGM
-    SoundBuffer BGM_buffer;
-    BGM_buffer.loadFromFile("./resources/sounds/bgm.ogg");
     Sound BGM_sound;
-    BGM_sound.setBuffer(BGM_buffer);
+    BGM_sound.setBuffer(sb.BGM);
+    BGM_sound.setVolume(100);
     BGM_sound.setLoop(1);       //BGM 무한반복
     BGM_sound.play();
 
@@ -126,14 +140,14 @@ int main(void)
 
     // 총알
     struct Bullet bullet[BULLET_NUM];
-
     Sprite bullet_sprite;
-    
 
     int bullet_speed = 20;
     int bullet_idx = 0;
     int bullet_delay = 500;     // 딜레이 0.5초
 
+    Sound bullet_sound;
+    bullet_sound.setBuffer(sb.pop2);
 
     for (int i = 0; i < BULLET_NUM; i++) {
         bullet[i].sprite.setSize(Vector2f(30, 30));
@@ -144,21 +158,29 @@ int main(void)
     
     // 적
     struct Enemy enemy[ENEMY_NUM];
+    Sound enemy_explosion_sound;
+    enemy_explosion_sound.setBuffer(sb.pop1);
+    int enemy_score = 100;
+    int enemy_respawn_time = 100;
 
     //enemy 초기화
     for (int i = 0; i < ENEMY_NUM; i++)
     {
-        // TODO : 굉장히 비효율적인 코드이므로 나중에 refactoring
-        enemy[i].explosion_buffer.loadFromFile("./resources/sounds/pop1.flac");
-        enemy[i].explosion_sound.setBuffer(enemy[i].explosion_buffer);
-        enemy[i].score = 100;
-        enemy[i].respawn_time = 8;
         enemy[i].sprite.setTexture(&t.enemy);
         enemy[i].sprite.setSize(Vector2f(90, 90));
         enemy[i].sprite.setPosition(rand() % 300 + W_WIDTH * 0.9, rand() % 380);
         enemy[i].life = 1;
         enemy[i].speed = -(rand() % 10 + 1);
     }
+
+    //item
+    struct Item item[2];
+    item[0].sprite.setTexture(&t.item_delay);
+    item[0].delay = 25000;  //25초
+    item[0].sprite.setSize(Vector2f(50, 40));
+    item[0].is_presentd = 1;
+    item[1].sprite.setTexture(&t.item_speed);
+
 
     //윈도우가 열려있을 때까지 반복
     while (window.isOpen())
@@ -226,8 +248,6 @@ int main(void)
 
         /*Bullet update*/
        //총알 발사
-        //TODO : 50번 이후부터는 안나가는 버그 수정할 것
-        printf("bullet_idx %d\n", bullet_idx);
         if (Keyboard::isKeyPressed(Keyboard::Space))
         {
             // 장전시간 체크 
@@ -237,8 +257,9 @@ int main(void)
                 {
                     bullet[bullet_idx].sprite.setPosition(player.x + 130, player.y +89);
                     bullet[bullet_idx].is_fired = 1;
-                    bullet_idx++;   //다음 총알이 발사할 수 있도록
+                    bullet_idx++;                   //다음 총알이 발사할 수 있도록
                     bullet_idx = bullet_idx % BULLET_NUM;
+                    bullet_sound.play();
                     fired_time = spent_time;        //총알 장전
                 }
             }
@@ -256,14 +277,17 @@ int main(void)
         for (int i = 0; i < ENEMY_NUM; i++)
         {
            // 10초마다 enemy가 젠
-            if (spent_time % (1000 * enemy[i].respawn_time) < 1000 / 60 + 1)
+            if (spent_time % (1000 * enemy_respawn_time) < 1000 / 60 + 1)
             {
-                enemy[i].sprite.setTexture(&t.enemy);
-                enemy[i].sprite.setSize(Vector2f(70, 70));
-                enemy[i].sprite.setPosition(rand() % 300 + W_WIDTH * 0.9, rand() % 380);
-                enemy[i].life = 1;
-                // 10초마다 enemy의 속도+1
-                enemy[i].speed = -(rand() % 10 + 1 + (spent_time / 1000 / enemy[i].respawn_time));
+                if (!is_gameover)
+                {
+                    enemy[i].sprite.setTexture(&t.enemy);
+                    enemy[i].sprite.setSize(Vector2f(70, 70));
+                    enemy[i].sprite.setPosition(rand() % 300 + W_WIDTH * 0.9, rand() % 380);
+                    enemy[i].life = 1;
+                    // 10초마다 enemy의 속도+1
+                    enemy[i].speed = -(rand() % 10 + 1 + (spent_time / 1000 / enemy_respawn_time));
+                }
             }
 
             if (enemy[i].life > 0)
@@ -272,12 +296,11 @@ int main(void)
                 if (is_collide(player.sprite, enemy[i].sprite))
                 {
                     enemy[i].life -= 1;
-                    player.score += enemy[i].score;
+                    player.score += enemy_score;
 
-                    //TODO : 코드 refactoring 필요
                     if (enemy[i].life == 0)
                     {
-                        enemy[i].explosion_sound.play();
+                        enemy_explosion_sound.play();
                     }
                 }
                 //적이 왼쪽 끝에 진입하려는 순간
@@ -297,10 +320,9 @@ int main(void)
                             enemy[i].life -= 1;
                             player.score += enemy[i].score;
 
-                            //TODO : 코드 refactoring 필요
                             if (enemy[i].life == 0)
                             {
-                                enemy[i].explosion_sound.play();
+                                enemy_explosion_sound.play();
                             }
                             bullet[j].is_fired = 0;
                         }
@@ -311,6 +333,11 @@ int main(void)
    
         }
 
+        //item update
+        if (item[0].is_presentd) 
+        {
+            //TODO : 충돌 시 아이템 효과를 주고 사라진다
+        }
        
         sprintf(info, "Life : %d | Score : %d | Time : %d"
             ,player.life, player.score, spent_time/1000);
@@ -324,6 +351,9 @@ int main(void)
             if (enemy[i].life > 0)
                 window.draw(enemy[i].sprite);
         }
+        if (item[0].is_presentd)
+            window.draw(item[0].sprite);
+
         window.draw(player.sprite);
         window.draw(text);
         for (int i = 0; i < BULLET_NUM; i++)
