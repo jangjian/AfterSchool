@@ -186,17 +186,15 @@ int main(void)
         }//방향키 end
 
         //Player 이동 범위 제한
-        //TODO : 오른쪽 아래쪽 제한을 의도대로 고치기
         if (player.x < 0) 
             player.sprite.setPosition(0, player.y);
-        else if(player.x > W_WIDTH) 
-            player.sprite.setPosition(W_WIDTH, player.y);
+        else if(player.x > W_WIDTH - 170)       //그림의 폭
+            player.sprite.setPosition(W_WIDTH - 170, player.y);
 
         if (player.y < 0) 
             player.sprite.setPosition(player.x, 0);
-        else if (player.y > W_HEIGHT)
-            player.sprite.setPosition(player.y, W_HEIGHT);
-        printf("(%f, %f)\n", player.x, player.y);
+        else if (player.y > W_HEIGHT - 181)     //그림의 높이
+            player.sprite.setPosition(player.x, W_HEIGHT - 181);
        
 
         /*Bullet update*/
