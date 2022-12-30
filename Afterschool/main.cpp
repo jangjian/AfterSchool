@@ -21,6 +21,7 @@ using namespace sf;
 struct Player {
     RectangleShape sprite;
     int speed;
+    int speed_max;
     int score;
     int life;
     float x, y;     //플레이어 좌표
@@ -37,12 +38,17 @@ struct Bullet
     int is_fired; //발사 여부
 };
 
+enum item_type {
+    SPEED,      // 0
+    DELAY       // 1
+};
+
 struct Item {
     RectangleShape sprite;
     int delay;
     int is_presented;    //아이템이 떴는지?
-    int presented_time;
-    int type;            
+    int presented_time; 
+    enum item_type type;
 };
 struct Textures {
     Texture bg;         // 배경 이미지
@@ -103,7 +109,7 @@ int main(void)
     //BGM
     Sound BGM_sound;
     BGM_sound.setBuffer(sb.BGM);
-    BGM_sound.setVolume(100);
+    BGM_sound.setVolume(90);
     BGM_sound.setLoop(1);       //BGM 무한반복
     BGM_sound.play();
 
@@ -136,6 +142,7 @@ int main(void)
     player.x = player.sprite.getPosition().x;
     player.y = player.sprite.getPosition().y;
     player.speed = 5;
+    player.speed_max = 10;
     player.score = 0;
     player.life = 3;
 
@@ -146,9 +153,11 @@ int main(void)
     int bullet_speed = 20;
     int bullet_idx = 0;
     int bullet_delay = 500;     // 딜레이 0.5초
+    int bullet_delay_max = 100;
 
     Sound bullet_sound;
     bullet_sound.setBuffer(sb.pop2);
+    bullet_sound.setVolume(70);
 
     for (int i = 0; i < BULLET_NUM; i++) {
         bullet[i].sprite.setSize(Vector2f(30, 30));
@@ -179,10 +188,10 @@ int main(void)
     struct Item item[ITEM_NUM];
     item[0].sprite.setTexture(&t.item_speed);
     item[0].delay = 25000;  //25초
-    item[0].type = 0;
+    item[0].type = SPEED;
     item[1].sprite.setTexture(&t.item_delay);
     item[1].delay = 20000;
-    item[1].type = 1;
+    item[1].type = DELAY;
 
     for (int i = 0; i < ITEM_NUM; i++) {
         item[i].sprite.setSize(Vector2f(60, 48));
@@ -359,11 +368,15 @@ int main(void)
                 {
                     switch (item[i].type)
                     {
-                    case 0: //player 이동 속도
-                        player.speed += 2;
+                    case SPEED: //player 이동 속도
+                             player.speed += 2;
+                             if (player.speed > player.speed_max)
+                                 player.speed = player.speed_max;
                         break;
-                    case 1: //player 공격 속도
+                    case DELAY: //player 공격 속도
                         bullet_delay -= 100;
+                        if (bullet_delay < bullet_delay_max)
+                            bullet_delay = bullet_delay_max;
                         break;
                     }
                     item[i].is_presented = 0;
@@ -373,7 +386,7 @@ int main(void)
         }
        
        
-        sprintf(info, "life:%d | score:%d | time:%d"
+        sprintf(info, "Life:%d | Score:%d | Time:%d"
             , player.life, player.score, spent_time / 1000);
         text.setString(info);
 
