@@ -183,7 +183,7 @@ int main(void)
     item[1].delay = 20000;
 
     for (int i = 0; i < ITEM_NUM; i++) {
-        item[i].sprite.setSize(Vector2f(50, 40));
+        item[i].sprite.setSize(Vector2f(60, 48));
         item[i].is_presented = 0;
         item[i].presented_time = 0;
     }
@@ -339,6 +339,8 @@ int main(void)
             }
         }
 
+        printf("[1] %d > %d ? \n", spent_time - item[1].presented_time, item[1].delay);
+        printf("%d (%f, %f)\n", item[1].is_presented, item[1].sprite.getPosition().x, item[1].sprite.getPosition().y);
         for (int i = 0; i < ITEM_NUM; i++) {
             if (!item[i].is_presented) {
                 if (spent_time - item[i].presented_time > item[i].delay) {
@@ -360,8 +362,10 @@ int main(void)
         for (int i = 0; i < ENEMY_NUM; i++)
             if (enemy[i].life > 0)
                 window.draw(enemy[i].sprite);
-        if (item[0].is_presented)
-            window.draw(item[0].sprite);
+        for (int i = 0; i < ITEM_NUM; i++) {
+            if (item[i].is_presented)
+                window.draw(item[i].sprite);
+        }
 
         window.draw(player.sprite);
         window.draw(text);
