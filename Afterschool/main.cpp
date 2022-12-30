@@ -42,6 +42,7 @@ struct Item {
     int delay;
     int is_presented;    //아이템이 떴는지?
     int presented_time;
+    int type;            
 };
 struct Textures {
     Texture bg;         // 배경 이미지
@@ -176,10 +177,12 @@ int main(void)
 
     //item
     struct Item item[ITEM_NUM];
-    item[0].sprite.setTexture(&t.item_delay);
+    item[0].sprite.setTexture(&t.item_speed);
     item[0].delay = 25000;  //25초
-    item[1].sprite.setTexture(&t.item_speed);
+    item[0].type = 0;
+    item[1].sprite.setTexture(&t.item_delay);
     item[1].delay = 20000;
+    item[1].type = 1;
 
     for (int i = 0; i < ITEM_NUM; i++) {
         item[i].sprite.setSize(Vector2f(60, 48));
@@ -338,13 +341,33 @@ int main(void)
             }
         }
 
-        printf("[1] %d > %d ? \n", spent_time - item[1].presented_time, item[1].delay);
-        printf("%d (%f, %f)\n", item[1].is_presented, item[1].sprite.getPosition().x, item[1].sprite.getPosition().y);
-        for (int i = 0; i < ITEM_NUM; i++) {
-            if (!item[i].is_presented) {
-                if (spent_time - item[i].presented_time > item[i].delay) {
+        
+        for (int i = 0; i < ITEM_NUM; i++)
+        {
+            if (!item[i].is_presented)
+            {
+                if (spent_time - item[i].presented_time > item[i].delay)
+                {
                     item[i].sprite.setPosition((rand() % W_WIDTH) * 0.8, (rand() % W_HEIGHT) * 0.8);
                     item[i].is_presented = 1;
+                }
+            }
+
+            if (item[i].is_presented)
+            {
+                if (is_collide(player.sprite, item[i].sprite))
+                {
+                    switch (item[i].type)
+                    {
+                    case 0: //player 이동 속도
+                        player.speed += 2;
+                        break;
+                    case 1: //player 공격 속도
+                        bullet_delay -= 100;
+                        break;
+                    }
+                    item[i].is_presented = 0;
+                    item[i].presented_time = spent_time;
                 }
             }
         }
