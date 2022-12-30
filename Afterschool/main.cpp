@@ -47,6 +47,7 @@ struct Item {
     RectangleShape sprite;
     int delay;
     int is_presented;    //아이템이 떴는지?
+    Sound sound;
     int presented_time; 
     enum item_type type;
 };
@@ -64,6 +65,8 @@ struct SBuffer {
     SoundBuffer BGM;
     SoundBuffer pop1;
     SoundBuffer pop2;
+    SoundBuffer item_delay;
+    SoundBuffer item_speed;
 };
 
 //obj1과 obj2의 충돌 여부. 충돌하면 1을 반환, 안하면 0을 반환
@@ -92,6 +95,8 @@ int main(void)
 
     struct SBuffer sb;
     sb.BGM.loadFromFile("./resources/sounds/bgm.ogg");
+    sb.item_delay.loadFromFile("./resources/sounds/item_delay.ogg");
+    sb.item_speed.loadFromFile("./resources/sounds/item_speed.wav");
     sb.pop1.loadFromFile("./resources/sounds/pop1.wav");
     sb.pop2.loadFromFile("./resources/sounds/pop2.ogg");
 
@@ -189,9 +194,11 @@ int main(void)
     item[0].sprite.setTexture(&t.item_speed);
     item[0].delay = 25000;  //25초
     item[0].type = SPEED;
+    item[0].sound.setBuffer(sb.item_speed);
     item[1].sprite.setTexture(&t.item_delay);
     item[1].delay = 20000;
     item[1].type = DELAY;
+    item[1].sound.setBuffer(sb.item_delay);
 
     for (int i = 0; i < ITEM_NUM; i++) {
         item[i].sprite.setSize(Vector2f(60, 48));
@@ -349,7 +356,6 @@ int main(void)
                 enemy[i].sprite.move(enemy[i].speed, 0);
             }
         }
-
         
         for (int i = 0; i < ITEM_NUM; i++)
         {
@@ -381,6 +387,7 @@ int main(void)
                     }
                     item[i].is_presented = 0;
                     item[i].presented_time = spent_time;
+                    item[i].sound.play();
                 }
             }
         }
