@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 
 struct Saram {
 	int hp;
@@ -17,4 +17,4 @@ int main(void) {
 	printf("플레이어 체력%d 플레이어 속도%d\n", player.hp, player.speed);
 
 	return 0;
-}
+}*/

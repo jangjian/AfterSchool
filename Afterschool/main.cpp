@@ -122,7 +122,6 @@ int main(void)
     bg_sprite.setTexture(t.bg);
     bg_sprite.setPosition(0, 0);
 
-
    // gameover
     Sprite gameover_sprite;
     gameover_sprite.setTexture(t.gameover);

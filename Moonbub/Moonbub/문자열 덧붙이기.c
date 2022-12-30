@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <string.h> //문자열 라이브러리
 #include <stdlib.h> //itoa 사용
 
@@ -8,4 +8,4 @@ int main(void) {
 	sprintf(str, "score : %d", score);
 
 	return 0;
-}
+}*/
