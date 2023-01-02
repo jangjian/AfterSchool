@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-void swap(int _a, int _b) {
-	int temp = _a;
-	_a = _b;
-	_b = temp;
+void swap(int *a, int *b) {
+	int temp = *a;
+	*a = *b;
+	*b = temp;
 }
 int main(void)
 {
@@ -13,6 +13,6 @@ int main(void)
 	printf("a : %d b : %d \n", a, b);
 
 	//a와 b를 swap하는 함수 호출
-	swap(a, b);
+	swap(&a, &b);
 	printf("a : %d b : %d \n", a, b);
 }
