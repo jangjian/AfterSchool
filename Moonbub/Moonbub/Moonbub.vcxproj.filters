@@ -21,6 +21,9 @@
     <ClCompile Include="열거형.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="swap.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="구조체.c">

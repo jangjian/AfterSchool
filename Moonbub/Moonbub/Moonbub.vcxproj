@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="swap.c" />
     <ClCompile Include="문자열 덧붙이기.c" />
     <ClCompile Include="열거형.c" />
   </ItemGroup>
