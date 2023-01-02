@@ -91,18 +91,21 @@ int main(void)
 					{
 						for (int j = 0; j < S; j++)
 						{
-							// 마우스 위치가 cards[i][j]의 위치에 해당한다면?
-							if (cards[i][j].sprite.getGlobalBounds().contains(mouse_pos.x, mouse_pos.y))
+							if (flipped_num < 2)
 							{
-								// 뒤집혀지지 않은 카드만 뒤집겠다.
-								if (cards[i][j].is_clicked == 0)
+								// 마우스 위치가 cards[i][j]의 위치에 해당한다면?
+								if (cards[i][j].sprite.getGlobalBounds().contains(mouse_pos.x, mouse_pos.y))
 								{
-									cards[i][j].is_clicked = 1;
-									flipped_num++;
-									// 두 개를 뒤집었다면
-									if (flipped_num == 2)
+									// 뒤집혀지지 않은 카드만 뒤집겠다.
+									if (cards[i][j].is_clicked == 0)
 									{
-										delay_time = spent_time;
+										cards[i][j].is_clicked = 1;
+										flipped_num++;
+										// 두 개를 뒤집었다면
+										if (flipped_num == 2)
+										{
+											delay_time = spent_time;
+										}
 									}
 								}
 							}
