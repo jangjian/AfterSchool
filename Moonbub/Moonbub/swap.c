@@ -1,7 +1,8 @@
 #include <stdio.h>
 
-void swap(int *a, int *b) {
-	int temp = *a;
+void swap(int *a, int* b) {
+	int temp;
+	temp = *a;
 	*a = *b;
 	*b = temp;
 }
@@ -12,7 +13,7 @@ int main(void)
 
 	printf("a : %d b : %d \n", a, b);
 
-	//a와 b를 swap하는 함수 호출
-	swap(&a, &ㅇㅇㅇㅇb);
-	printf("a : %d b : %d \n", a, b);
+	swap(&a, &b);
+
+	printf("a ; %d b : %d \n", a, b);
 }
