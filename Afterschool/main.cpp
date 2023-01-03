@@ -170,7 +170,6 @@ int main(void)
         bullet[i].sprite.setPosition(player.x + 130, player.y + 89);        //임시 테스트
         bullet[i].is_fired = 0;
     }
-    
 
     // 적(enemy)
     struct Enemy enemy[ENEMY_NUM];
@@ -205,7 +204,6 @@ int main(void)
         item[i].is_presented = 0;
         item[i].presented_time = 0;
     }
-
 
     //윈도우가 열려있을 때까지 반복
     while (window.isOpen())
@@ -418,7 +416,6 @@ int main(void)
         if (is_gameover)
         {
             window.draw(gameover_sprite);
-            // TODO : 게임이 멈추는 것을 구현할 것
         }
 
         window.display();
