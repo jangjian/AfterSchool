@@ -8,6 +8,7 @@ struct Player {
 	int fps;					// frames per sec
 	int idx;					// 애니메이션 index
 	int frames;					// 애니메이션 frame수
+	int speed;
 	long ani_time;				// 애니메이션이 바뀔 때의 시각
 	long ani_delay;
 };
@@ -40,6 +41,7 @@ int main(void)
 	player.sprite.setSize(Vector2f(90, 120));
 	player.sprite.setPosition(200, 400);
 	player.ani_delay = 1000/ player.frames / 2;		//0.5초마다 걸음
+	player.speed = 5;
 
 	start_time = clock();
 	player.ani_time = start_time;
@@ -60,8 +62,18 @@ int main(void)
 			}
 		}
 
+		if (Keyboard::isKeyPressed(Keyboard::Right))
+		{
+			player.sprite.setScale(1, 1);
+			player.sprite.move(player.speed, 0);
+		}
+		else if (Keyboard::isKeyPressed(Keyboard::Left))
+		{
+			player.sprite.setScale(-1, 1);
+			player.sprite.move(-player.speed, 0);
+		}
 		// 0.1초마다 애니메이션 그림이 바뀜
-		while (spent_time - player.ani_time > 1000 / player.ani_delay)
+		while (spent_time - player.ani_time > player.ani_delay)
 		{
 			player.ani_time = spent_time;
 			player.sprite.setTexture(&run[player.idx % player.frames]);
