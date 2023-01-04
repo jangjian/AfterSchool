@@ -20,6 +20,10 @@ struct Card
 	int is_claered;		// 정답을 맞춘 카드인지
 };
 
+struct SBuffer {
+	SoundBuffer BGM;
+
+};
 void swap_card(struct Card* c1, struct Card* c2)
 {
 	struct Card temp = *c1;
@@ -34,15 +38,28 @@ int main(void)
 
 	Vector2i mouse_pos;
 	int flipped_num = 0;	// 현제 뒤집혀진 카드의 갯수
+	int is_gameover = 0;
+	int score = 0;
+	int life = 10;
 
 	long start_time;
 	long spent_time;
 	long delay_time;		// 바로 다시 ?로 뒤집혀지지 않도록 딜레이를 줌
 
+
 	srand(time(0));
 
+	struct SBuffer sb;
+	sb.BGM.loadFromFile("./resources/sounds/bgm.ogg");
 
-	Texture t[8 + 1];
+	//BGM
+	Sound BGM_sound;
+	BGM_sound.setBuffer(sb.BGM);
+	BGM_sound.setVolume(90);
+	BGM_sound.setLoop(1);       //BGM 무한반복
+	BGM_sound.play();
+
+	Texture t[8 + 1+ 4];
 	t[0].loadFromFile("./resources/images/card8.png");
 	t[1].loadFromFile("./resources/images/card1.png");
 	t[2].loadFromFile("./resources/images/card2.png");
@@ -52,6 +69,10 @@ int main(void)
 	t[6].loadFromFile("./resources/images/card6.png");
 	t[7].loadFromFile("./resources/images/card7.png");
 	t[8].loadFromFile("./resources/images/card0.png");
+	t[9].loadFromFile("./resources/images/gameclear.png");
+	t[10].loadFromFile("./resources/images/gameover.png");
+	t[11].loadFromFile("./resources/images/background.png");
+	t[12].loadFromFile("./resources/images/restart.png");
 
 	Font font;
 	font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
@@ -62,6 +83,26 @@ int main(void)
 	text.setFillColor(Color::Black);
 	text.setPosition(0, 0);
 	char info[40];
+
+	// gameclear
+	Sprite gameclear_sprite;
+	gameclear_sprite.setTexture(t[9]);
+	gameclear_sprite.setPosition((1200 - 640) / 2, (800 - 600) / 2);
+
+	// gameover
+	Sprite gameover_sprite;
+	gameover_sprite.setTexture(t[10]);
+	gameover_sprite.setPosition((1200-640)/2, (800-600)/2);
+
+	// background
+	Sprite bg_sprite;
+	bg_sprite.setTexture(t[11]);
+	bg_sprite.setPosition(0,0);
+
+	// restart
+	Sprite rs_sprite;
+	rs_sprite.setTexture(t[12]);
+	rs_sprite.setPosition((1200 - 640) / 2, (800 - 400) / 2);
 
 	struct Card compare_card;
 	struct Card cards[S][S];
@@ -90,12 +131,13 @@ int main(void)
 		{
 			cards[i][j].id_i = i;
 			cards[i][j].id_j = j;
-			cards[i][j].sprite.setPosition(j * CARD_W, i * CARD_H);
+			cards[i][j].sprite.setPosition(j * CARD_W + 300, i * CARD_H);
 		}
 	}
 
 	start_time = clock();
 	delay_time = start_time;
+
 
 	while (window.isOpen())
 	{
@@ -140,11 +182,13 @@ int main(void)
 											{
 												cards[i][j].is_claered = 1;
 												cards[compare_card.id_i][compare_card.id_j].is_claered = 1;
+												score += 1;
 											}
 											// 두 카드가 다른 종류이면
 											else
 											{
 												delay_time = spent_time;
+												life -= 1;
 											}
 										}
 									}
@@ -155,7 +199,7 @@ int main(void)
 				}
 			}
 		}
-
+		
 		for (int i = 0; i < S; i++)
 		{
 			for (int j = 0; j < S; j++)
@@ -170,7 +214,7 @@ int main(void)
 			}
 		}
 
-		// 뒤집힌 카드가 2개라면 TODO : 두 번째 카드는 바로 다시 뒤집혀지지
+		// 뒤집힌 카드가 2개라면 
 		if (flipped_num == 2)
 		{
 			// 두 카드가 뒤집힌지 2초 이내라면
@@ -188,10 +232,40 @@ int main(void)
 			}
 		}
 
-		sprintf(info, " %d\n",spent_time/1000);
-		text.setString(info);
+		if (is_gameover == 1)
+		{
+			spent_time = clock();
+			for (int i = 0; i < S; i++)
+			{
+				for (int j = 0; j < S; j++)
+				{
+					cards[i][j].sprite.setSize(Vector2f(CARD_W, CARD_H));
+					cards[i][j].sprite.setTexture(&t[0]);
+					cards[i][j].type = 1 + n / 2;
+					cards[i][j].is_clicked = 0;
+					cards[i][j].is_claered = 0;
+					n++;
 
-		window.clear(Color::Black);
+				}
+				for (int i = 0; i < S; i++)
+				{
+					for (int j = 0; j < S; j++)
+					{
+						window.draw(cards[i][j].sprite);
+					}
+				}
+				is_gameover = 0;
+
+			}
+			score = 0;
+			life = 10;
+		}
+
+		sprintf(info, "TIME : %d | LIFE : %d\n SCORE : %d",spent_time/1000, life, score);
+		text.setString(info);
+		window.draw(bg_sprite);
+
+		window.clear(Color::White);
 		for (int i = 0; i < S; i++)
 		{
 			for (int j = 0; j < S; j++)
@@ -199,7 +273,24 @@ int main(void)
 				window.draw(cards[i][j].sprite);
 			}
 		}
+
+		if (score == 8 && spent_time<=40000)
+		{
+			window.draw(gameclear_sprite);
+			window.draw(rs_sprite);
+			is_gameover = 1;
+		}
+
+		if (spent_time == 40000 || life == 0)
+		{
+			window.draw(gameover_sprite);
+			window.draw(rs_sprite);
+			is_gameover = 1;
+			
+		}
+
 		window.draw(text);
+
 		window.display();
 	}
 

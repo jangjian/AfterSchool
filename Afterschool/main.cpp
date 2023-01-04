@@ -14,6 +14,14 @@ TODO list
 #include <SFML/Graphics.hpp>
 #include <time.h>
 #include <SFML/Audio.hpp>
+#include <Windows.h>
+
+#ifdef WIN32
+HWND hwnd = GetConsoleWindow();
+ShowWindow(hwnd, SW_HIDE);
+
+#endif // WIN32
+
 
 
 using namespace sf;

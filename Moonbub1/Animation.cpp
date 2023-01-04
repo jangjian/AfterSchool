@@ -29,6 +29,7 @@ int main(void)
 	const int GRAVITY = 5;	// Áß·Â
 	const int PLATFORM_Y = 500;	// ¶¥¹Ù´ÚÀÇ yÁÂÇ¥
 
+	
 
 	Texture run[10];
 	run[0].loadFromFile("./animation/Run__000.png");
