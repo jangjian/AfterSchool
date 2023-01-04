@@ -8,9 +8,14 @@ struct Player {
 	int fps;					// frames per sec
 	int idx;					// 애니메이션 index
 	int frames;					// 애니메이션 frame수
-	int speed;
 	long ani_time;				// 애니메이션이 바뀔 때의 시각
 	long ani_delay;
+
+	int speed;
+	// 점프 관련 변수
+	int is_jumping;				// 점프 상태인가?
+	int jumping_time;			// 점프를 시작하는 시각
+	int jump_speed;
 };
 
 int main(void)
@@ -21,7 +26,7 @@ int main(void)
 	long start_time;
 	long spent_time;
 
-	const int GRAVITY = 10;	// 중력
+	const int GRAVITY = 5;	// 중력
 	const int PLATFORM_Y = 500;	// 땅바닥의 y좌표
 
 
@@ -46,9 +51,12 @@ int main(void)
 	player.sprite.setPosition(200, 400);
 	player.ani_delay = 1000/ player.frames / 2;		//0.5초마다 걸음
 	player.speed = 5;
+	player.jump_speed = GRAVITY *2;
 
 	start_time = clock();
 	player.ani_time = start_time;
+	player.jumping_time = start_time;
+	player.is_jumping = 0;
 
 	while (window.isOpen())
 	{
@@ -65,7 +73,8 @@ int main(void)
 				if (event.key.code == Keyboard::Space)
 				{
 					// 점프
-					player.sprite.move(0, -3);
+					player.is_jumping = 1;
+					player.jumping_time = spent_time;
 				}
 			default:
 				break;
@@ -89,7 +98,19 @@ int main(void)
 			player.sprite.setTexture(&run[player.idx % player.frames]);
 			player.idx++;
 		}
+
+		// 필요하다면 1000을 나중에 변수처리할 것
+		if (spent_time - player.jumping_time > 500)
+		{
+			player.is_jumping = 0;
+		}
+
 		player.sprite.move(0,GRAVITY);		// 중력이 작용한다
+
+		if (player.is_jumping == 1)
+		{
+			player.sprite.move(0, -player.jump_speed);
+		}
 
 		// 플레이어가 땅바닥에 착지하면
 		if (player.sprite.getPosition().y + player.sprite.getSize().y > PLATFORM_Y)
