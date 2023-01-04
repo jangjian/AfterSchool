@@ -99,6 +99,7 @@ int main(void)
 			player.idx++;
 		}
 
+
 		// 필요하다면 1000을 나중에 변수처리할 것
 		if (spent_time - player.jumping_time > 500)
 		{
