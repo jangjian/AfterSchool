@@ -16,11 +16,7 @@ TODO list
 #include <SFML/Audio.hpp>
 #include <Windows.h>
 
-#ifdef WIN32
-HWND hwnd = GetConsoleWindow();
-ShowWindow(hwnd, SW_HIDE);
 
-#endif // WIN32
 
 
 
